@@ -2,32 +2,35 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
-	basedata "proyectobd2/src/Basedata"
+
+	"proyectobd2/src/basedata"
+	"proyectobd2/src/handlers"
 )
 
-func index(rw http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("src/templates/index.html")
-	if err != nil {
-		http.Error(rw, "No se pudo cargar la plantilla: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	tmpl.Execute(rw, nil)
-}
-
 func main() {
-	// Inicializar Cassandra y crear tablas
+	// Paso 1: Inicializar Cassandra
 	basedata.InitCassandra()
 
-	// Insertar canciones de ejemplo si no existen
+	// Paso 2: Insertar canciones si no existen
 	err := basedata.SeedMusicData()
 	if err != nil {
 		fmt.Println("Error al insertar canciones:", err)
 	}
 
-	http.HandleFunc("/", index)
+	// Paso 3: Rutas del servidor
+	http.HandleFunc("/", handlers.Index) // Página principal
 
+	// 🚀 Rutas futuras (comentadas por ahora, pero preparadas)
+	http.HandleFunc("/api/canciones", handlers.GetCanciones)
+	// http.HandleFunc("/api/recomendaciones", handlers.GetRecomendaciones)
+	// http.HandleFunc("/api/olap/genero", handlers.GetOLAPGenero)
+
+	// Paso 4: Servir archivos estáticos
+	fs := http.FileServer(http.Dir("src/static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	// Paso 5: Levantar el servidor
 	fmt.Println("Servidor HTTP iniciado en http://localhost:8080")
-	http.ListenAndServe("localhost:8080", nil)
+	http.ListenAndServe(":8080", nil)
 }

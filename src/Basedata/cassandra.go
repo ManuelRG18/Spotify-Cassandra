@@ -50,7 +50,8 @@ func InitCassandra() {
 		titulo TEXT,
 		artista TEXT,
 		album TEXT,
-		anio INT
+		anio INT,
+		genero TEXT
 	)`).Exec()
 	if err != nil {
 		log.Fatal("No se pudo crear la tabla musica:", err)
@@ -75,16 +76,13 @@ func InsertUsuario(nombre, email string) error {
 }
 
 // InsertCancion inserta una nueva canción en la base de datos
-func InsertCancion(titulo, artista, album string, anio int) error {
-	id := gocql.TimeUUID() // Genera un UUID único
-
-	query := Session.Query(`INSERT INTO musica (id, titulo, artista, album, anio) VALUES (?, ?, ?, ?, ?)`,
-		id, titulo, artista, album, anio)
-
+func InsertCancion(titulo, artista, album, genero string, anio int) error {
+	id := gocql.TimeUUID()
+	query := Session.Query(`INSERT INTO musica (id, titulo, artista, album, anio, genero) VALUES (?, ?, ?, ?, ?, ?)`,
+		id, titulo, artista, album, anio, genero)
 	if err := query.Exec(); err != nil {
 		return fmt.Errorf("error al insertar canción: %v", err)
 	}
-
 	fmt.Printf("Canción insertada con ID: %v\n", id)
 	return nil
 }
@@ -95,18 +93,44 @@ func SeedMusicData() error {
 		artista string
 		album   string
 		anio    int
+		genero  string
 	}{
-		{"Bohemian Rhapsody", "Queen", "A Night at the Opera", 1975},
-		{"Imagine", "John Lennon", "Imagine", 1971},
-		{"Hotel California", "Eagles", "Hotel California", 1976},
+		{"Bohemian Rhapsody", "Queen", "A Night at the Opera", 1975, "Rock"},
+		{"Imagine", "John Lennon", "Imagine", 1971, "Pop"},
+		{"Hotel California", "Eagles", "Hotel California", 1976, "Rock"},
 		// Agrega más canciones aquí
 	}
 
-	for _, cancion := range canciones {
-		err := InsertCancion(cancion.titulo, cancion.artista, cancion.album, cancion.anio)
+	for _, c := range canciones {
+		err := InsertCancion(c.titulo, c.artista, c.album, c.genero, c.anio)
 		if err != nil {
-			return fmt.Errorf("error al insertar canción %s: %v", cancion.titulo, err)
+			return fmt.Errorf("error al insertar canción %s: %v", c.titulo, err)
 		}
 	}
 	return nil
+}
+
+// GetAllCanciones retorna todas las canciones de la base de datos
+func GetAllCanciones() ([]map[string]interface{}, error) {
+	var canciones []map[string]interface{}
+
+	iter := Session.Query("SELECT id, titulo, artista, genero FROM musica").Iter()
+	var id gocql.UUID
+	var titulo, artista, genero string
+
+	for iter.Scan(&id, &titulo, &artista, &genero) {
+		cancion := map[string]interface{}{
+			"id":      id.String(),
+			"titulo":  titulo,
+			"artista": artista,
+			"genero":  genero,
+		}
+		canciones = append(canciones, cancion)
+	}
+
+	if err := iter.Close(); err != nil {
+		return nil, fmt.Errorf("error al obtener canciones: %v", err)
+	}
+
+	return canciones, nil
 }
