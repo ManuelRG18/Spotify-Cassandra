@@ -1,19 +1,17 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"proyectobd2/src/basedata"
+
+	"github.com/gin-gonic/gin"
 )
 
-// GetCanciones maneja la ruta /api/canciones y devuelve todas las canciones
-func GetCanciones(w http.ResponseWriter, r *http.Request) {
+func GetCanciones(c *gin.Context) {
 	canciones, err := basedata.GetAllCanciones()
 	if err != nil {
-		http.Error(w, "Error al obtener canciones: "+err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(canciones)
+	c.JSON(http.StatusOK, canciones)
 }
