@@ -17,26 +17,31 @@ func main() {
 	err := basedata.SeedMusicData()
 	if err != nil {
 		fmt.Println("Error al insertar canciones:", err)
-
-		router := gin.Default()
-
-		router.Static("/static", "./src/static")
-
-		router.LoadHTMLGlob("src/templates/*")
-
-		router.GET("/", handlers.Index)
-
-		api := router.Group("/api")
-		{
-			api.GET("/canciones", handlers.GetCanciones)
-			// api.POST("/usuarios", handlers.CreateUsuario)
-			// api.POST("/escuchar", handlers.RegistrarEscucha)
-			// api.GET("/recomendaciones", handlers.GetRecomendaciones)
-			// api.GET("/olap/genero", handlers.GetOLAPGenero)
-		}
-
-		// Iniciar servidor
-		router.Run(":8080")
 	}
 
+	// 🔄 Mover esto fuera del if
+	router := gin.Default()
+
+	// Servir archivos estáticos
+	router.Static("/static", "./src/static")
+
+	// Cargar plantillas HTML
+	router.LoadHTMLGlob("src/templates/*")
+
+	// Ruta principal
+	router.GET("/", handlers.Index)
+
+	// Rutas de API
+	api := router.Group("/api")
+	{
+		api.GET("/canciones", handlers.GetCanciones)
+		// api.POST("/usuarios", handlers.CreateUsuario)
+		// api.POST("/escuchar", handlers.RegistrarEscucha)
+		// api.GET("/recomendaciones", handlers.GetRecomendaciones)
+		// api.GET("/olap/genero", handlers.GetOLAPGenero)
+	}
+
+	// Iniciar servidor
+	fmt.Println("Servidor iniciado en http://localhost:8080")
+	router.Run(":8080")
 }
