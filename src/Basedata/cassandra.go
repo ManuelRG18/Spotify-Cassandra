@@ -4,6 +4,7 @@ package basedata
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gocql/gocql"
 )
@@ -109,7 +110,6 @@ func InsertCancion(titulo, artista, album, genero string, anio int) error {
 	fmt.Printf("Canción insertada con ID: %v\n", id)
 	return nil
 }
-
 func SeedMusicData() error {
 	canciones := []struct {
 		titulo  string
@@ -121,10 +121,27 @@ func SeedMusicData() error {
 		{"Bohemian Rhapsody", "Queen", "A Night at the Opera", 1975, "Rock"},
 		{"Imagine", "John Lennon", "Imagine", 1971, "Pop"},
 		{"Hotel California", "Eagles", "Hotel California", 1976, "Rock"},
-		// Agrega más canciones aquí
+		{"Like a Prayer", "Madonna", "Like a Prayer", 1989, "Pop"},
+		{"Smells Like Teen Spirit", "Nirvana", "Nevermind", 1991, "Grunge"},
+		{"Hey Jude", "The Beatles", "Hey Jude", 1968, "Rock"},
+		{"Billie Jean", "Michael Jackson", "Thriller", 1982, "Pop"},
 	}
 
 	for _, c := range canciones {
+		// Elimina la canción si ya existe (por título y artista)
+		// Esto es para evitar duplicados al reiniciar
+		iter := Session.Query("SELECT id FROM musica WHERE titulo = ? AND artista = ? ALLOW FILTERING", c.titulo, c.artista).Iter()
+		var idExistente gocql.UUID
+		existe := false
+		for iter.Scan(&idExistente) {
+			existe = true
+		}
+		iter.Close()
+		if existe {
+			// Si existe, elimina la canción
+			Session.Query("DELETE FROM musica WHERE id = ?", idExistente).Exec()
+		}
+		// Inserta la canción
 		err := InsertCancion(c.titulo, c.artista, c.album, c.genero, c.anio)
 		if err != nil {
 			return fmt.Errorf("error al insertar canción %s: %v", c.titulo, err)
@@ -160,31 +177,37 @@ func GetAllCanciones() ([]map[string]interface{}, error) {
 
 // RegistrarEscucha inserta un registro en la tabla escuchas y actualiza la tabla OLAP
 func RegistrarEscucha(usuarioID, cancionID gocql.UUID, fecha string) error {
-	// fecha debe venir en formato "YYYY-MM-DD"
+	// Insertar en escuchas
 	query := Session.Query(`INSERT INTO escuchas (usuario_id, cancion_id, fecha_escucha) VALUES (?, ?, ?)`,
 		usuarioID, cancionID, fecha)
 	if err := query.Exec(); err != nil {
 		return fmt.Errorf("error al registrar escucha: %v", err)
 	}
 
-	// Obtener género y año/mes de la canción para actualizar la tabla OLAP
+	// Obtener género y año/mes de la canción
 	var genero string
 	var anio int
 	var mes int
-	err := Session.Query(`SELECT genero, anio FROM musica WHERE id = ?`, cancionID).Scan(&genero, &anio)
+	// Obtener datos de la canción
+	err := Session.Query("SELECT genero, anio FROM musica WHERE id = ?", cancionID).Scan(&genero, &anio)
 	if err != nil {
-		return fmt.Errorf("error al obtener género y año de la canción: %v", err)
+		return fmt.Errorf("error al obtener datos de la canción: %v", err)
 	}
-	// Extraer mes de la fecha (YYYY-MM-DD)
-	if len(fecha) >= 7 {
-		fmt.Sscanf(fecha, "%d-%d", &anio, &mes)
+	// Parsear mes desde la fecha (YYYY-MM-DD)
+	t, err := time.Parse("2006-01-02", fecha)
+	if err != nil {
+		return fmt.Errorf("error al parsear fecha: %v", err)
 	}
+	mes = int(t.Month())
+
 	// Actualizar contador OLAP
-	olapQuery := Session.Query(`UPDATE escuchas_por_genero_mes SET total_escuchas = total_escuchas + 1 WHERE genero = ? AND anio = ? AND mes = ?`, genero, anio, mes)
-	if err := olapQuery.Exec(); err != nil {
-		return fmt.Errorf("error al actualizar tabla OLAP: %v", err)
+	err = Session.Query(`UPDATE escuchas_por_genero_mes SET total_escuchas = total_escuchas + 1 WHERE genero = ? AND anio = ? AND mes = ?`,
+		genero, anio, mes).Exec()
+	if err != nil {
+		return fmt.Errorf("error al actualizar OLAP: %v", err)
 	}
-	fmt.Printf("Escucha registrada: usuario %v, canción %v, fecha %s, genero %s, anio %d, mes %d\n", usuarioID, cancionID, fecha, genero, anio, mes)
+
+	fmt.Printf("Escucha registrada y OLAP actualizado: usuario %v, canción %v, fecha %s\n", usuarioID, cancionID, fecha)
 	return nil
 }
 

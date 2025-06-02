@@ -126,22 +126,119 @@
       </select>
     </div>
 
-    <table id="tablaCanciones">
-      <thead>
-        <tr>
-          <th>Título</th>
-          <th>Artista</th>
-          <th>Género</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Bohemian Rhapsody</td><td>Queen</td><td>Rock</td></tr>
-        <tr><td>Like a Prayer</td><td>Madonna</td><td>Pop</td></tr>
-        <tr><td>Smells Like Teen Spirit</td><td>Nirvana</td><td>Grunge</td></tr>
-        <tr><td>Hey Jude</td><td>The Beatles</td><td>Rock</td></tr>
-        <tr><td>Billie Jean</td><td>Michael Jackson</td><td>Pop</td></tr>
-      </tbody>
-    </table>
+    <div id="canciones-container"></div>
+</body>
+<script>
+// Cargar canciones y registrar escuchas al hacer click
+document.addEventListener("DOMContentLoaded", function() {
+  const contenedor = document.getElementById("canciones-container");
+  if (!contenedor) return;
+
+  fetch("/api/canciones")
+    .then(res => res.json())
+    .then(canciones => {
+      if (!canciones || canciones.length === 0) {
+        contenedor.innerHTML = "<p>No hay canciones disponibles.</p>";
+        return;
+      }
+      const usuario_id = localStorage.getItem("usuario_id");
+      // Crear tabla de canciones
+      const tabla = document.createElement("table");
+      tabla.style.width = "100%";
+      tabla.style.marginTop = "20px";
+      const thead = document.createElement("thead");
+      thead.innerHTML = `<tr>
+        <th>Escuchar</th>
+        <th>Título</th>
+        <th>Artista</th>
+        <th>Género</th>
+      </tr>`;
+      tabla.appendChild(thead);
+      const tbody = document.createElement("tbody");
+      // Filtrar duplicados por id (o por título+artista si hay ids repetidos)
+      const cancionesUnicas = [];
+      const idsVistos = new Set();
+      canciones.forEach(c => {
+        const clave = c.id || (c.titulo + '|' + c.artista);
+        if (!idsVistos.has(clave)) {
+          idsVistos.add(clave);
+          cancionesUnicas.push(c);
+        }
+      });
+
+      // Recuperar escuchas previas del usuario (localStorage)
+      let escuchadas = [];
+      try {
+        escuchadas = JSON.parse(localStorage.getItem("escuchadas") || "[]");
+      } catch {}
+
+      cancionesUnicas.forEach(c => {
+        const tr = document.createElement("tr");
+        // Celda corazón
+        const tdHeart = document.createElement("td");
+        const heart = document.createElement("span");
+        heart.innerHTML = "&#9829;";
+        heart.style.color = escuchadas.includes(c.id) ? "#e74c3c" : "#ccc";
+        heart.style.fontSize = "1.3em";
+        heart.style.cursor = escuchadas.includes(c.id) ? "default" : "pointer";
+        heart.title = escuchadas.includes(c.id) ? "Ya escuchada" : "Escuchar esta canción";
+        heart.addEventListener("click", function(e) {
+          e.stopPropagation();
+          if (usuario_id && c.id && !escuchadas.includes(c.id)) {
+            registrarEscucha(usuario_id, c.id, function() {
+              heart.style.color = "#e74c3c";
+              heart.style.cursor = "default";
+              heart.title = "Ya escuchada";
+              tr.style.background = "#b2f7b2";
+              escuchadas.push(c.id);
+              localStorage.setItem("escuchadas", JSON.stringify(escuchadas));
+            });
+          } else if (!usuario_id) {
+            alert("Debes iniciar sesión para registrar escuchas.");
+          }
+        });
+        tdHeart.appendChild(heart);
+        tr.appendChild(tdHeart);
+        // Celdas de info
+        const tdTitulo = document.createElement("td");
+        tdTitulo.textContent = c.titulo;
+        tr.appendChild(tdTitulo);
+        const tdArtista = document.createElement("td");
+        tdArtista.textContent = c.artista;
+        tr.appendChild(tdArtista);
+        const tdGenero = document.createElement("td");
+        tdGenero.textContent = c.genero;
+        tr.appendChild(tdGenero);
+        tbody.appendChild(tr);
+      });
+      tabla.appendChild(tbody);
+      contenedor.innerHTML = "";
+      contenedor.appendChild(tabla);
+    })
+    .catch(() => {
+      contenedor.innerHTML = "<p>Error al cargar canciones.</p>";
+    });
+});
+
+function registrarEscucha(usuario_id, cancion_id, callback) {
+  const fecha = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  fetch("/api/escuchar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario_id, cancion_id, fecha_escucha: fecha }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert("❌ Error al registrar escucha: " + data.error);
+      } else {
+        console.log("✅ Escucha registrada");
+        if (typeof callback === "function") callback();
+      }
+    })
+    .catch(() => alert("❌ Error al registrar escucha (fetch)"));
+}
+</script>
   </div>
 
   <script>
