@@ -79,43 +79,88 @@
 
   <div class="container">
     <h2>Basado en tus gustos</h2>
+    <label for="genero">Género:</label>
+    <select id="genero">
+      <option value="Rock">Rock</option>
+      <option value="Pop">Pop</option>
+      <option value="Grunge">Grunge</option>
+      <!-- Agrega más géneros si tienes en tu base de datos -->
+    </select>
+    <button class="button" onclick="generarRecomendaciones()">🎲 Ver recomendaciones</button>
     <ul id="lista-recomendaciones">
       <!-- Recomendaciones serán insertadas aquí -->
     </ul>
-
-    <button class="button" onclick="generarRecomendaciones()">🎲 Ver nuevas recomendaciones</button><br>
     <a class="back-button" href="/dashboard">Volver al Dashboard</a>
+    <hr style="margin:2rem 0;border:1px solid #ffffff33;">
+    <h2>Estadísticas de escuchas por género y mes</h2>
+    <div style="overflow-x:auto;">
+      <table id="tabla-olap" style="width:100%;color:white;background:rgba(0,0,0,0.2);border-radius:8px;">
+        <thead>
+          <tr>
+            <th style="padding:8px;">Género</th>
+            <th style="padding:8px;">Año</th>
+            <th style="padding:8px;">Mes</th>
+            <th style="padding:8px;">Total escuchas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="4">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    const recomendaciones = [
-      "🎧 Bohemian Rhapsody - Queen (Rock)",
-      "🎧 Like a Prayer - Madonna (Pop)",
-      "🎧 Hey Jude - The Beatles (Rock)",
-      "🎧 Billie Jean - Michael Jackson (Pop)",
-      "🎧 Smells Like Teen Spirit - Nirvana (Grunge)",
-      "🎧 Imagine - John Lennon (Pop)",
-      "🎧 Sweet Child O' Mine - Guns N' Roses (Rock)",
-      "🎧 Rolling in the Deep - Adele (Pop)"
-    ];
-
     function generarRecomendaciones() {
+      const genero = document.getElementById("genero").value;
       const lista = document.getElementById("lista-recomendaciones");
-      lista.innerHTML = "";
-
-      const nuevas = recomendaciones
-        .sort(() => 0.5 - Math.random()) // Mezclar aleatoriamente
-        .slice(0, 3); // Tomar 3 recomendaciones
-
-      nuevas.forEach((cancion) => {
-        const item = document.createElement("li");
-        item.textContent = cancion;
-        lista.appendChild(item);
-      });
+      lista.innerHTML = "<li>Cargando...</li>";
+      fetch(`/api/recomendaciones?genero=${encodeURIComponent(genero)}&limite=5`)
+        .then(res => res.json())
+        .then(data => {
+          lista.innerHTML = "";
+          if (!data || data.length === 0) {
+            lista.innerHTML = "<li>No hay recomendaciones para este género.</li>";
+            return;
+          }
+          data.forEach(c => {
+            const item = document.createElement("li");
+            item.textContent = `🎧 ${c.titulo} - ${c.artista} (${genero}) [${c.total} escuchas]`;
+            lista.appendChild(item);
+          });
+        })
+        .catch(() => {
+          lista.innerHTML = "<li>Error al cargar recomendaciones.</li>";
+        });
     }
 
-    // Mostrar recomendaciones al cargar
-    window.onload = generarRecomendaciones;
+    function cargarOlapGenero() {
+      const tbody = document.getElementById('tabla-olap').querySelector('tbody');
+      tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+      fetch('/api/olap/genero')
+        .then(res => res.json())
+        .then(data => {
+          tbody.innerHTML = '';
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4">Sin datos</td></tr>';
+            return;
+          }
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="padding:8px;">${row.genero}</td><td style="padding:8px;">${row.anio}</td><td style="padding:8px;">${row.mes}</td><td style="padding:8px;">${row.total}</td>`;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(() => {
+          tbody.innerHTML = '<tr><td colspan="4">Error al cargar datos OLAP</td></tr>';
+        });
+    }
+
+    // Mostrar recomendaciones y OLAP al cargar
+    window.onload = function() {
+      generarRecomendaciones();
+      cargarOlapGenero();
+    };
   </script>
 </body>
 </html>

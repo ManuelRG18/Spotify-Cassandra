@@ -1,28 +1,54 @@
+// Registrar escucha de una canción
+function registrarEscucha(usuario_id, cancion_id) {
+  const fecha = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  fetch("/api/escuchar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario_id, cancion_id, fecha_escucha: fecha }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        console.error("❌ Error al registrar escucha:", data.error);
+      } else {
+        console.log("✅ Escucha registrada");
+      }
+    })
+    .catch(() => console.error("❌ Error al registrar escucha (fetch)"));
+}
 // Cargar canciones en explorar.html
 document.addEventListener("DOMContentLoaded", () => {
   const contenedor = document.getElementById("canciones-container");
-  if (!contenedor) return; // solo en páginas que lo tengan
+  if (contenedor) {
+    fetch("/api/canciones")
+      .then(res => res.json())
+      .then(canciones => {
+        if (canciones.length === 0) {
+          contenedor.innerHTML = "<p>No hay canciones disponibles.</p>";
+          return;
+        }
 
-  fetch("/api/canciones")
-    .then(res => res.json())
-    .then(canciones => {
-      if (canciones.length === 0) {
-        contenedor.innerHTML = "<p>No hay canciones disponibles.</p>";
-        return;
-      }
-
-      const lista = document.createElement("ul");
-      canciones.forEach(c => {
-        const item = document.createElement("li");
-        item.innerHTML = `<strong>${c.titulo}</strong> – ${c.artista} <em>(${c.genero})</em>`;
-        lista.appendChild(item);
+        const usuario_id = localStorage.getItem("usuario_id");
+        const lista = document.createElement("ul");
+        canciones.forEach(c => {
+          const item = document.createElement("li");
+          item.innerHTML = `<strong>${c.titulo}</strong> – ${c.artista} <em>(${c.genero})</em>`;
+          // Registrar escucha al hacer click en la canción
+          item.style.cursor = "pointer";
+          item.addEventListener("click", function() {
+            if (usuario_id && c.id) {
+              registrarEscucha(usuario_id, c.id);
+            }
+          });
+          lista.appendChild(item);
+        });
+        contenedor.appendChild(lista);
+      })
+      .catch(error => {
+        console.error("Error cargando canciones:", error);
+        contenedor.innerHTML = "<p>Error al cargar canciones.</p>";
       });
-      contenedor.appendChild(lista);
-    })
-    .catch(error => {
-      console.error("Error cargando canciones:", error);
-      contenedor.innerHTML = "<p>Error al cargar canciones.</p>";
-    });
+  }
 
   // Login handler
   const formLogin = document.getElementById("form-login");

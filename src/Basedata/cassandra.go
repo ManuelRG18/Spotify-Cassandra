@@ -1,3 +1,4 @@
+// filepath: d:\programacion\proyecto bd2\src\basedata\cassandra.go
 package basedata
 
 import (
@@ -57,7 +58,28 @@ func InitCassandra() {
 	if err != nil {
 		log.Fatal("No se pudo crear la tabla musica:", err)
 	}
+	// Crear tabla escuchas
+	err = Session.Query(`CREATE TABLE IF NOT EXISTS escuchas (
+	usuario_id UUID,
+	cancion_id UUID,
+	fecha_escucha DATE,
+	PRIMARY KEY (usuario_id, fecha_escucha, cancion_id)
+) WITH CLUSTERING ORDER BY (fecha_escucha DESC);`).Exec()
+	if err != nil {
+		log.Fatal("No se pudo crear la tabla escuchas:", err)
+	}
 
+	// Crear tabla OLAP escuchas por género y mes
+	err = Session.Query(`CREATE TABLE IF NOT EXISTS escuchas_por_genero_mes (
+	genero TEXT,
+	anio INT,
+	mes INT,
+	total_escuchas COUNTER,
+	PRIMARY KEY ((genero), anio, mes)
+)`).Exec()
+	if err != nil {
+		log.Fatal("No se pudo crear la tabla escuchas_por_genero_mes:", err)
+	}
 	fmt.Println("Keyspace y tablas creados correctamente en Cassandra")
 }
 
@@ -133,5 +155,106 @@ func GetAllCanciones() ([]map[string]interface{}, error) {
 		return nil, fmt.Errorf("error al obtener canciones: %v", err)
 	}
 
+	return canciones, nil
+}
+
+// RegistrarEscucha inserta un registro en la tabla escuchas y actualiza la tabla OLAP
+func RegistrarEscucha(usuarioID, cancionID gocql.UUID, fecha string) error {
+	// fecha debe venir en formato "YYYY-MM-DD"
+	query := Session.Query(`INSERT INTO escuchas (usuario_id, cancion_id, fecha_escucha) VALUES (?, ?, ?)`,
+		usuarioID, cancionID, fecha)
+	if err := query.Exec(); err != nil {
+		return fmt.Errorf("error al registrar escucha: %v", err)
+	}
+
+	// Obtener género y año/mes de la canción para actualizar la tabla OLAP
+	var genero string
+	var anio int
+	var mes int
+	err := Session.Query(`SELECT genero, anio FROM musica WHERE id = ?`, cancionID).Scan(&genero, &anio)
+	if err != nil {
+		return fmt.Errorf("error al obtener género y año de la canción: %v", err)
+	}
+	// Extraer mes de la fecha (YYYY-MM-DD)
+	if len(fecha) >= 7 {
+		fmt.Sscanf(fecha, "%d-%d", &anio, &mes)
+	}
+	// Actualizar contador OLAP
+	olapQuery := Session.Query(`UPDATE escuchas_por_genero_mes SET total_escuchas = total_escuchas + 1 WHERE genero = ? AND anio = ? AND mes = ?`, genero, anio, mes)
+	if err := olapQuery.Exec(); err != nil {
+		return fmt.Errorf("error al actualizar tabla OLAP: %v", err)
+	}
+	fmt.Printf("Escucha registrada: usuario %v, canción %v, fecha %s, genero %s, anio %d, mes %d\n", usuarioID, cancionID, fecha, genero, anio, mes)
+	return nil
+}
+
+// GetTopCancionesPorGenero retorna las canciones más escuchadas por género
+func GetTopCancionesPorGenero(genero string, limite int) ([]map[string]interface{}, error) {
+	// Cassandra no soporta JOINs ni agregaciones complejas, así que lo haremos en dos pasos
+	// 1. Obtener todas las canciones del género
+	canciones, err := GetAllCancionesPorGenero(genero)
+	if err != nil {
+		return nil, err
+	}
+	// 2. Contar escuchas por cancion_id
+	type cancionContada struct {
+		id      string
+		titulo  string
+		artista string
+		total   int
+	}
+	var resultados []cancionContada
+	for _, c := range canciones {
+		var total int
+		err := Session.Query(`SELECT COUNT(*) FROM escuchas WHERE cancion_id = ? ALLOW FILTERING`, c["id"]).Scan(&total)
+		if err == nil && total > 0 {
+			resultados = append(resultados, cancionContada{
+				id:      c["id"].(string),
+				titulo:  c["titulo"].(string),
+				artista: c["artista"].(string),
+				total:   total,
+			})
+		}
+	}
+	// Ordenar por total descendentemente
+	for i := 0; i < len(resultados)-1; i++ {
+		for j := i + 1; j < len(resultados); j++ {
+			if resultados[j].total > resultados[i].total {
+				resultados[i], resultados[j] = resultados[j], resultados[i]
+			}
+		}
+	}
+	// Limitar resultados
+	top := []map[string]interface{}{}
+	for i, c := range resultados {
+		if i >= limite {
+			break
+		}
+		top = append(top, map[string]interface{}{
+			"id":      c.id,
+			"titulo":  c.titulo,
+			"artista": c.artista,
+			"total":   c.total,
+		})
+	}
+	return top, nil
+}
+
+// GetAllCancionesPorGenero retorna todas las canciones de un género
+func GetAllCancionesPorGenero(genero string) ([]map[string]interface{}, error) {
+	var canciones []map[string]interface{}
+	iter := Session.Query("SELECT id, titulo, artista, genero FROM musica WHERE genero = ? ALLOW FILTERING", genero).Iter()
+	var id, titulo, artista, generoStr string
+	for iter.Scan(&id, &titulo, &artista, &generoStr) {
+		canciones = append(canciones, map[string]interface{}{
+			"id":      id,
+			"titulo":  titulo,
+			"artista": artista,
+			"genero":  generoStr,
+		})
+	}
+	if err := iter.Close(); err != nil {
+		return nil, fmt.Errorf("error al obtener canciones por género: %v", err)
+	}
 	return canciones, nil
 }
