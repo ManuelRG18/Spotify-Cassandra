@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recomendaciones - Aura Music</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #4111ee, #462791);
+      color: white;
+    }
+
+    header {
+      background-color: #3a8fdf;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .container {
+      padding: 2rem;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      background-color: rgba(255, 255, 255, 0.1);
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+    }
+
+    .button {
+      margin-top: 2rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #1071c0;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #6324aa;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #4440a0;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-button:hover {
+      background-color: #6324aa;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Recomendaciones - Aura Music</h1>
+  </header>
+
+  <div class="container">
+    <h2>Basado en tus gustos</h2>
+    <ul id="lista-recomendaciones">
+      <!-- Recomendaciones serán insertadas aquí -->
+    </ul>
+
+    <button class="button" onclick="generarRecomendaciones()">🎲 Ver nuevas recomendaciones</button><br>
+    <a class="back-button" href="dashboard.html">Volver al Dashboard</a>
+  </div>
+
+  <script>
+    const recomendaciones = [
+      "🎧 Bohemian Rhapsody - Queen (Rock)",
+      "🎧 Like a Prayer - Madonna (Pop)",
+      "🎧 Hey Jude - The Beatles (Rock)",
+      "🎧 Billie Jean - Michael Jackson (Pop)",
+      "🎧 Smells Like Teen Spirit - Nirvana (Grunge)",
+      "🎧 Imagine - John Lennon (Pop)",
+      "🎧 Sweet Child O' Mine - Guns N' Roses (Rock)",
+      "🎧 Rolling in the Deep - Adele (Pop)"
+    ];
+
+    function generarRecomendaciones() {
+      const lista = document.getElementById("lista-recomendaciones");
+      lista.innerHTML = "";
+
+      const nuevas = recomendaciones
+        .sort(() => 0.5 - Math.random()) // Mezclar aleatoriamente
+        .slice(0, 3); // Tomar 3 recomendaciones
+
+      nuevas.forEach((cancion) => {
+        const item = document.createElement("li");
+        item.textContent = cancion;
+        lista.appendChild(item);
+      });
+    }
+
+    // Mostrar recomendaciones al cargar
+    window.onload = generarRecomendaciones;
+  </script>
+</body>
+</html>

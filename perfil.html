@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil - Aura Music</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #170bca, #789289);
+      color: white;
+    }
+
+    header {
+      background-color: #7aadb6;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .container {
+      padding: 2rem;
+      text-align: left;
+    }
+
+    .perfil-info {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .perfil-info p {
+      font-size: 1.1rem;
+      margin: 0.5rem 0;
+    }
+
+    .button-group {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .boton {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #2965d4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .boton:hover {
+      background-color: #90c2c9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Perfil de Usuario - Aura Music</h1>
+  </header>
+
+  <div class="container">
+    <div class="perfil-info">
+      <p><strong>Nombre:</strong> <span id="nombreUsuario">Ana Pérez</span></p>
+      <p><strong>Ciudad:</strong> <span id="ciudadUsuario">Caracas</span></p>
+    </div>
+
+    <div class="button-group">
+      <button class="boton" onclick="cambiarNombre()">Cambiar nombre</button>
+      <button class="boton" onclick="cambiarCiudad()">Cambiar ciudad</button>
+      <button class="boton" onclick="cerrarSesion()">Cerrar sesión</button>
+      <a href="dashboard.html" class="boton">Volver al Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    // Mostrar datos guardados si existen
+    window.onload = function () {
+      const nombreGuardado = localStorage.getItem("nombreUsuario");
+      const ciudadGuardada = localStorage.getItem("ciudadUsuario");
+
+      if (nombreGuardado) {
+        document.getElementById("nombreUsuario").textContent = nombreGuardado;
+      }
+      if (ciudadGuardada) {
+        document.getElementById("ciudadUsuario").textContent = ciudadGuardada;
+      }
+    };
+
+    function cambiarNombre() {
+      const nuevoNombre = prompt("Ingresa tu nuevo nombre:");
+      if (nuevoNombre) {
+        document.getElementById("nombreUsuario").textContent = nuevoNombre;
+        localStorage.setItem("nombreUsuario", nuevoNombre);
+      }
+    }
+
+    function cambiarCiudad() {
+      const nuevaCiudad = prompt("Ingresa tu nueva ciudad:");
+      if (nuevaCiudad) {
+        document.getElementById("ciudadUsuario").textContent = nuevaCiudad;
+        localStorage.setItem("ciudadUsuario", nuevaCiudad);
+      }
+    }
+
+    function cerrarSesion() {
+      const confirmar = confirm("¿Estás seguro de que deseas cerrar sesión?");
+      if (confirmar) {
+        localStorage.clear(); // Opcional: borra los datos al cerrar sesión
+        window.location.href = "index.html";
+      }
+    }
+  </script>
+</body>
+</html>

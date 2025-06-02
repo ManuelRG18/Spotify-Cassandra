@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explorar Canciones - Aura Music</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f3f3fb;
+    }
+
+    header {
+      background-color: #5b23dd;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    header h1 {
+      font-size: 36px;
+      margin: 0;
+      flex: 1;
+      text-align: center;
+    }
+
+    header img {
+      height: 80px;
+      margin-left: 20px;
+    }
+
+    .volver {
+      padding: 15px 30px;
+    }
+
+    .volver button {
+      background-color: #6c5ce7;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .volver button:hover {
+      background-color: #5943c7;
+    }
+
+    .container {
+      padding: 30px;
+    }
+
+    h2 {
+      color: #6c5ce7;
+      margin-top: 0;
+    }
+
+    .filtros {
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #dcd6fa;
+      color: #333;
+    }
+
+    tr:hover {
+      background-color: #eceaff;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Explorar Canciones</h1>
+    <img src="logomenu.png" alt="Logo Aura Music" />
+  </header>
+
+  <div class="volver">
+    <button onclick="window.location.href='dashboard.html'">← Volver al Dashboard</button>
+  </div>
+
+  <div class="container">
+    <h2>Filtrar canciones</h2>
+    <div class="filtros">
+      <label for="genero">Género:</label>
+      <select id="genero" onchange="filtrar()">
+        <option value="todos">Todos</option>
+        <option value="Rock">Rock</option>
+        <option value="Pop">Pop</option>
+        <option value="Grunge">Grunge</option>
+      </select>
+
+      <label for="artista">Artista:</label>
+      <select id="artista" onchange="filtrar()">
+        <option value="todos">Todos</option>
+        <option value="Queen">Queen</option>
+        <option value="Madonna">Madonna</option>
+        <option value="Nirvana">Nirvana</option>
+        <option value="The Beatles">The Beatles</option>
+        <option value="Michael Jackson">Michael Jackson</option>
+      </select>
+    </div>
+
+    <table id="tablaCanciones">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Artista</th>
+          <th>Género</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Bohemian Rhapsody</td><td>Queen</td><td>Rock</td></tr>
+        <tr><td>Like a Prayer</td><td>Madonna</td><td>Pop</td></tr>
+        <tr><td>Smells Like Teen Spirit</td><td>Nirvana</td><td>Grunge</td></tr>
+        <tr><td>Hey Jude</td><td>The Beatles</td><td>Rock</td></tr>
+        <tr><td>Billie Jean</td><td>Michael Jackson</td><td>Pop</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function filtrar() {
+      const genero = document.getElementById("genero").value;
+      const artista = document.getElementById("artista").value;
+
+      const filas = document.querySelectorAll("#tablaCanciones tbody tr");
+      filas.forEach((fila) => {
+        const generoTexto = fila.children[2].textContent;
+        const artistaTexto = fila.children[1].textContent;
+
+        const coincideGenero = genero === "todos" || genero === generoTexto;
+        const coincideArtista = artista === "todos" || artista === artistaTexto;
+
+        fila.style.display = coincideGenero && coincideArtista ? "" : "none";
+      });
+    }
+  </script>
+
+</body>
+</html>
