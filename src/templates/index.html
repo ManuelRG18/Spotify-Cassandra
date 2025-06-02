@@ -1,17 +1,123 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Mini Spotify 🎧</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aura Music - Iniciar Sesión</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/app.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #8e2de2, #4a00e0);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 320px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    .logo {
+      width: 100px;
+      margin-bottom: 15px;
+    }
+
+    h2 {
+      color: #4a00e0;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #4a00e0;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #3700b3;
+    }
+
+    .registro-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .registro-link a {
+      color: #4a00e0;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .registro-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h1>🎵 Catálogo de Canciones</h1>
 
-  <div id="canciones-container">
-    <!-- Aquí se insertarán las canciones -->
+  <div class="container">
+    <img src="/static/img/logo.png" alt="Aura Music Logo" class="logo" />
+    <h2>Iniciar Sesión</h2>
+    <form id="form-login" onsubmit="login(event)">
+      <input type="email" id="login-usuario" placeholder="Usuario" required>
+      <input type="password" id="login-password" placeholder="Contraseña" required>
+
+      <button type="submit">Ingresar</button>
+
+    </form>
+    <div class="registro-link">
+      ¿No tienes una cuenta? <a href="/registro">Regístrate aquí</a>
+    </div>
   </div>
 
-  <script src="/static/js/app.js"></script>
+  <script>
+    function login(event) {
+      event.preventDefault();
+      window.location.href = "/dashboard";
+    }
+  </script>
+
+  <form onsubmit="return validarFormulario()">
+  <!-- tus inputs -->
+</form>
+
+<script>
+  function validarFormulario() {
+    const usuario = document.getElementById("usuario").value;
+    const clave = document.getElementById("clave").value;
+    if (usuario.trim() === "" || clave.trim() === "") {
+      alert("Por favor completa todos los campos.");
+      return false;
+    }
+    return true;
+  }
+</script>
+<script src="/static/js/app.js"></script>
+
 </body>
 </html>
+

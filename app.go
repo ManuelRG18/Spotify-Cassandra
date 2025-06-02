@@ -19,7 +19,6 @@ func main() {
 		fmt.Println("Error al insertar canciones:", err)
 	}
 
-	// 🔄 Mover esto fuera del if
 	router := gin.Default()
 
 	// Servir archivos estáticos
@@ -31,11 +30,38 @@ func main() {
 	// Ruta principal
 	router.GET("/", handlers.Index)
 
+	router.GET("/registro", func(c *gin.Context) {
+		c.HTML(200, "registro.html", gin.H{})
+	})
+
+	router.GET("/dashboard", func(c *gin.Context) {
+		c.HTML(200, "dashboard.html", nil)
+	})
+
+	// Otras vistas del dashboard
+	router.GET("/explorar", func(c *gin.Context) {
+		c.HTML(200, "explorar.html", nil)
+	})
+	router.GET("/recomendaciones", func(c *gin.Context) {
+		c.HTML(200, "recomendaciones.html", nil)
+	})
+	router.GET("/tendencias", func(c *gin.Context) {
+		c.HTML(200, "tendencias.html", nil)
+	})
+	router.GET("/historial", func(c *gin.Context) {
+		c.HTML(200, "historial.html", nil)
+	})
+	router.GET("/perfil", func(c *gin.Context) {
+		c.HTML(200, "perfil.html", nil)
+	})
+
 	// Rutas de API
 	api := router.Group("/api")
 	{
 		api.GET("/canciones", handlers.GetCanciones)
-		// api.POST("/usuarios", handlers.CreateUsuario)
+		api.POST("/usuarios", handlers.CreateUsuario)
+		api.POST("/login", handlers.LoginUsuario)
+
 		// api.POST("/escuchar", handlers.RegistrarEscucha)
 		// api.GET("/recomendaciones", handlers.GetRecomendaciones)
 		// api.GET("/olap/genero", handlers.GetOLAPGenero)

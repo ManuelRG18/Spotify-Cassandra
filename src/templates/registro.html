@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrarse - Aura Music</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+  <div class="logo">
+    <h1>Aura Music 🎵</h1>
+    <p>¡Únete a la mejor experiencia musical!</p>
+  </div>
+
+  <div class="form-container">
+    <h2>Registrarse</h2>
+    <form id="registro-form">
+      <label for="name">Nombre completo:</label>
+      <input type="text" id="registro-nombre" placeholder="Nombre completo" required>
+
+      <label for="email">Correo:</label>
+     <input type="email" id="registro-usuario" placeholder="Correo" required>
+
+      <label for="password">Contraseña:</label>
+      <input type="password" id="registro-password" placeholder="Contraseña" required>
+
+      <label for="confirm-password">Confirmar contraseña:</label>
+      <input type="password" id="confirm-password" placeholder="Confirmar contraseña" required>
+
+      <button type="button" onclick="registrar()">Registrarse</button>
+
+      <p class="register-link">¿Ya tienes una cuenta? <a href="/">Inicia sesión</a></p>
+    </form>
+  </div>
+ <script src="/static/js/app.js"></script>
+</body>
+</html>
+

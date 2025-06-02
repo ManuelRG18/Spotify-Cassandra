@@ -36,9 +36,10 @@ func InitCassandra() {
 
 	// Crear tabla usuarios
 	err = Session.Query(`CREATE TABLE IF NOT EXISTS usuarios (
-		id UUID PRIMARY KEY,
-		nombre TEXT,
-		email TEXT
+	id UUID PRIMARY KEY,
+	nombre TEXT,
+	email TEXT,
+	password TEXT
 	)`).Exec()
 	if err != nil {
 		log.Fatal("No se pudo crear la tabla usuarios:", err)
@@ -61,18 +62,18 @@ func InitCassandra() {
 }
 
 // InsertUsuario inserta un nuevo usuario en la base de datos
-func InsertUsuario(nombre, email string) error {
-	id := gocql.TimeUUID() // Genera un UUID único
+func InsertUsuario(nombre, email, password string) (gocql.UUID, error) {
+	id := gocql.TimeUUID()
 
-	query := Session.Query(`INSERT INTO usuarios (id, nombre, email) VALUES (?, ?, ?)`,
-		id, nombre, email)
+	query := Session.Query(`INSERT INTO usuarios (id, nombre, email, password) VALUES (?, ?, ?, ?)`,
+		id, nombre, email, password)
 
 	if err := query.Exec(); err != nil {
-		return fmt.Errorf("error al insertar usuario: %v", err)
+		return gocql.UUID{}, fmt.Errorf("error al insertar usuario: %v", err)
 	}
 
 	fmt.Printf("Usuario insertado con ID: %v\n", id)
-	return nil
+	return id, nil
 }
 
 // InsertCancion inserta una nueva canción en la base de datos

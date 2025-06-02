@@ -1,0 +1,59 @@
+package handlers
+
+import (
+	"net/http"
+	"proyectobd2/src/basedata"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gocql/gocql"
+)
+
+type UsuarioInput struct {
+	Nombre   string `json:"nombre"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func CreateUsuario(c *gin.Context) {
+	var input UsuarioInput
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+		return
+	}
+
+	id, err := basedata.InsertUsuario(input.Nombre, input.Email, input.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar usuario"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mensaje":    "Usuario registrado correctamente",
+		"usuario_id": id,
+	})
+}
+
+func LoginUsuario(c *gin.Context) {
+	var input struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"error": "Datos inválidos"})
+		return
+	}
+
+	var id gocql.UUID
+	var nombre, passwordDB string
+	err := basedata.Session.Query(`SELECT id, nombre, password FROM usuarios WHERE email = ? LIMIT 1`,
+		input.Email).Scan(&id, &nombre, &passwordDB)
+
+	if err != nil || passwordDB != input.Password {
+		c.JSON(401, gin.H{"error": "Correo o contraseña incorrectos"})
+		return
+	}
+
+	c.JSON(200, gin.H{"usuario_id": id, "nombre": nombre})
+}
