@@ -47,6 +47,12 @@ func InitCassandra() {
 		log.Fatal("No se pudo crear la tabla usuarios:", err)
 	}
 
+	// Crear índice secundario para email (necesario para login)
+	err = Session.Query(`CREATE INDEX IF NOT EXISTS ON usuarios (email)`).Exec()
+	if err != nil {
+		log.Fatal("No se pudo crear el índice de email:", err)
+	}
+
 	// Crear tabla musica
 	err = Session.Query(`CREATE TABLE IF NOT EXISTS musica (
 		id UUID PRIMARY KEY,
