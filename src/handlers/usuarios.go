@@ -58,3 +58,22 @@ func LoginUsuario(c *gin.Context) {
 
 	c.JSON(200, gin.H{"usuario_id": id, "nombre": nombre})
 }
+
+// Obtener datos de un usuario por ID
+func GetUsuarioByID(c *gin.Context) {
+	idStr := c.Param("id")
+	var nombre, ciudad string
+	var id gocql.UUID
+	var email string
+	err := basedata.Session.Query(`SELECT id, nombre, ciudad, email FROM usuarios WHERE id = ? LIMIT 1`, idStr).Scan(&id, &nombre, &ciudad, &email)
+	if err != nil {
+		c.JSON(404, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
+	c.JSON(200, gin.H{
+		"id":     id,
+		"nombre": nombre,
+		"ciudad": ciudad,
+		"email":  email,
+	})
+}

@@ -66,6 +66,7 @@ func main() {
 		api.GET("/recomendaciones", handlers.GetRecomendaciones)
 		api.GET("/olap/genero", handlers.GetOLAPGenero)
 		api.GET("/olap/ciudad", handlers.GetOLAPCiudad)
+		api.GET("/usuarios/:id", handlers.GetUsuarioByID)
 	}
 
 	// Iniciar servidor

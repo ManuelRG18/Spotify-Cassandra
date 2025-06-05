@@ -84,17 +84,20 @@
   </div>
 
   <script>
-    // Mostrar datos guardados si existen
+    // Mostrar datos reales del usuario desde la base de datos
     window.onload = function () {
-      const nombreGuardado = localStorage.getItem("nombreUsuario");
-      const ciudadGuardada = localStorage.getItem("ciudadUsuario");
-
-      if (nombreGuardado) {
-        document.getElementById("nombreUsuario").textContent = nombreGuardado;
-      }
-      if (ciudadGuardada) {
-        document.getElementById("ciudadUsuario").textContent = ciudadGuardada;
-      }
+      const usuario_id = localStorage.getItem("usuario_id");
+      if (!usuario_id) return;
+      fetch(`/api/usuarios/${usuario_id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.nombre) {
+            document.getElementById("nombreUsuario").textContent = data.nombre;
+          }
+          if (data && data.ciudad) {
+            document.getElementById("ciudadUsuario").textContent = data.ciudad;
+          }
+        });
     };
 
     function cambiarNombre() {
