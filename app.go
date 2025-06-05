@@ -13,10 +13,12 @@ func main() {
 	// Paso 1: Inicializar Cassandra
 	basedata.InitCassandra()
 
-	// Paso 2: Insertar canciones si no existen
-	err := basedata.SeedMusicData()
+	// Paso 2: Importar datos desde CSV (usuarios, canciones, escuchas)
+	err := basedata.ImportAllCSVs()
 	if err != nil {
-		fmt.Println("Error al insertar canciones:", err)
+		fmt.Println("Error al importar datos desde CSV:", err)
+	} else {
+		fmt.Println("Datos importados correctamente desde CSV.")
 	}
 
 	router := gin.Default()

@@ -1,0 +1,101 @@
+cancion_id,titulo,artista,album,genero,anio
+1,Bohemian Rhapsody,Queen,A Night at the Opera,Rock,1975
+2,Imagine,John Lennon,Imagine,Pop,1971
+3,Hotel California,Eagles,Hotel California,Rock,1976
+4,Like a Prayer,Madonna,Like a Prayer,Pop,1989
+5,Smells Like Teen Spirit,Nirvana,Nevermind,Grunge,1991
+6,Hey Jude,The Beatles,Hey Jude,Rock,1968
+7,Billie Jean,Michael Jackson,Thriller,Pop,1982
+8,Shape of You,Ed Sheeran,Divide,Pop,2017
+9,Stairway to Heaven,Led Zeppelin,Led Zeppelin IV,Rock,1971
+10,Yesterday,The Beatles,Help!,Rock,1965
+11,Thriller,Michael Jackson,Thriller,Pop,1982
+12,Rolling in the Deep,Adele,21,Pop,2010
+13,Wonderwall,Oasis,(What's the Story) Morning Glory?,Rock,1995
+14,Let It Be,The Beatles,Let It Be,Rock,1970
+15,Despacito,Luis Fonsi,VIDA,Pop,2017
+16,Blank Space,Taylor Swift,1989,Pop,2014
+17,Chandelier,Sia,1000 Forms of Fear,Pop,2014
+18,Counting Stars,OneRepublic,Native,Pop,2013
+19,Radioactive,Imagine Dragons,Night Visions,Rock,2012
+20,Shallow,Lady Gaga,Shallow,Pop,2018
+21,Perfect,Ed Sheeran,Divide,Pop,2017
+22,All of Me,John Legend,Love in the Future,Pop,2013
+23,Someone Like You,Adele,21,Pop,2011
+24,Bohemian Like You,The Dandy Warhols,Thirteen Tales from Urban Bohemia,Rock,2000
+25,Clocks,Coldplay,A Rush of Blood to the Head,Rock,2002
+26,Fix You,Coldplay,X&Y,Rock,2005
+27,Back in Black,AC/DC,Back in Black,Rock,1980
+28,Highway to Hell,AC/DC,Highway to Hell,Rock,1979
+29,Another Brick in the Wall,Pink Floyd,The Wall,Rock,1979
+30,Comfortably Numb,Pink Floyd,The Wall,Rock,1979
+31,Time,Pink Floyd,The Dark Side of the Moon,Rock,1973
+32,Money,Pink Floyd,The Dark Side of the Moon,Rock,1973
+33,Heroes,David Bowie,Heroes,Rock,1977
+34,Space Oddity,David Bowie,David Bowie,Rock,1969
+35,Under Pressure,Queen,Hot Space,Rock,1981
+36,Don't Stop Me Now,Queen,Jazz,Rock,1978
+37,Somebody to Love,Queen,A Day at the Races,Rock,1976
+38,We Will Rock You,Queen,News of the World,Rock,1977
+39,We Are the Champions,Queen,News of the World,Rock,1977
+40,Imagine Dragons,Imagine Dragons,Night Visions,Rock,2012
+41,Demons,Imagine Dragons,Night Visions,Rock,2012
+42,Believer,Imagine Dragons,Evolve,Rock,2017
+43,Whatever It Takes,Imagine Dragons,Evolve,Rock,2017
+44,Thunder,Imagine Dragons,Evolve,Rock,2017
+45,On Top of the World,Imagine Dragons,Night Visions,Rock,2012
+46,It's Time,Imagine Dragons,Night Visions,Rock,2012
+47,Amsterdam,Imagine Dragons,Night Visions,Rock,2012
+48,Tiptoe,Imagine Dragons,Night Visions,Rock,2012
+49,Every Breath You Take,The Police,Synchronicity,Rock,1983
+50,Roxanne,The Police,Outlandos d'Amour,Rock,1978
+51,Message in a Bottle,The Police,Reggatta de Blanc,Rock,1979
+52,Don't Stand So Close to Me,The Police,Zenyatta Mondatta,Rock,1980
+53,Walking on the Moon,The Police,Reggatta de Blanc,Rock,1979
+54,King of Pain,The Police,Synchronicity,Rock,1983
+55,So Lonely,The Police,Outlandos d'Amour,Rock,1978
+56,Every Little Thing She Does Is Magic,The Police,Ghost in the Machine,Rock,1981
+57,Fields of Gold,Sting,Ten Summoner's Tales,Pop,1993
+58,Englishman in New York,Sting,Nothing Like the Sun,Pop,1987
+59,Shape of My Heart,Sting,Ten Summoner's Tales,Pop,1993
+60,Fragile,Sting,Nothing Like the Sun,Pop,1987
+61,Despacito,Justin Bieber,VIDA,Pop,2017
+62,Sorry,Justin Bieber,Purpose,Pop,2015
+63,Love Yourself,Justin Bieber,Purpose,Pop,2015
+64,What Do You Mean?,Justin Bieber,Purpose,Pop,2015
+65,Baby,Justin Bieber,My World 2.0,Pop,2010
+66,One Time,Justin Bieber,My World,Pop,2009
+67,One Less Lonely Girl,Justin Bieber,My World,Pop,2009
+68,Intentions,Justin Bieber,Changes,Pop,2020
+69,Yummy,Justin Bieber,Changes,Pop,2020
+70,Peaches,Justin Bieber,Justice,Pop,2021
+71,Watermelon Sugar,Harry Styles,Fine Line,Pop,2019
+72,Adore You,Harry Styles,Fine Line,Pop,2019
+73,Sign of the Times,Harry Styles,Harry Styles,Pop,2017
+74,Golden,Harry Styles,Fine Line,Pop,2019
+75,Kiwi,Harry Styles,Harry Styles,Pop,2017
+76,Blinding Lights,The Weeknd,After Hours,Pop,2019
+77,Save Your Tears,The Weeknd,After Hours,Pop,2019
+78,In Your Eyes,The Weeknd,After Hours,Pop,2019
+79,Can't Feel My Face,The Weeknd,Beauty Behind the Madness,Pop,2015
+80,Starboy,The Weeknd,Starboy,Pop,2016
+81,Take On Me,a-ha,Hunting High and Low,Pop,1985
+82,The Sun Always Shines on T.V.,a-ha,Hunting High and Low,Pop,1985
+83,Crying in the Rain,a-ha,East of the Sun, West of the Moon,Pop,1990
+84,Stay on These Roads,a-ha,Stay on These Roads,Pop,1988
+85,Touchy!,a-ha,Stay on These Roads,Pop,1988
+86,Manhattan Skyline,a-ha,Scoundrel Days,Pop,1986
+87,The Living Daylights,a-ha,Stay on These Roads,Pop,1987
+88,Train of Thought,a-ha,Hunting High and Low,Pop,1985
+89,Hunting High and Low,a-ha,Hunting High and Low,Pop,1985
+90,The Blood That Moves the Body,a-ha,Stay on These Roads,Pop,1988
+91,Take Me On,a-ha,Hunting High and Low,Pop,1985
+92,The Swing of Things,a-ha,Scoundrel Days,Pop,1986
+93,Soft Rains of April,a-ha,Stay on These Roads,Pop,1988
+94,Scoundrel Days,a-ha,Scoundrel Days,Pop,1986
+95,I've Been Losing You,a-ha,Scoundrel Days,Pop,1986
+96,This Alone Is Love,a-ha,Stay on These Roads,Pop,1988
+97,You'll End Up Crying,a-ha,Scoundrel Days,Pop,1986
+98,Maybe,Thom Pace,Maybe,Pop,1979
+99,Reality,Richard Sanderson,La Boum,Pop,1980
+100,Forever Young,Alphaville,Forever Young,Pop,1984

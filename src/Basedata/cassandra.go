@@ -117,16 +117,16 @@ func InsertUsuario(nombre, ciudad, email, password string) (gocql.UUID, error) {
 	return id, nil
 }
 
-// InsertCancion inserta una nueva canción en la base de datos
-func InsertCancion(titulo, artista, album, genero string, anio int) error {
+// InsertCancion inserta una nueva canción en la base de datos y retorna el UUID generado
+func InsertCancion(titulo, artista, album, genero string, anio int) (gocql.UUID, error) {
 	id := gocql.TimeUUID()
 	query := Session.Query(`INSERT INTO musica (id, titulo, artista, album, anio, genero) VALUES (?, ?, ?, ?, ?, ?)`,
 		id, titulo, artista, album, anio, genero)
 	if err := query.Exec(); err != nil {
-		return fmt.Errorf("error al insertar canción: %v", err)
+		return gocql.UUID{}, fmt.Errorf("error al insertar canción: %v", err)
 	}
 	fmt.Printf("Canción insertada con ID: %v\n", id)
-	return nil
+	return id, nil
 }
 func SeedMusicData() error {
 	canciones := []struct {
@@ -160,7 +160,7 @@ func SeedMusicData() error {
 			Session.Query("DELETE FROM musica WHERE id = ?", idExistente).Exec()
 		}
 		// Inserta la canción
-		err := InsertCancion(c.titulo, c.artista, c.album, c.genero, c.anio)
+		_, err := InsertCancion(c.titulo, c.artista, c.album, c.genero, c.anio)
 		if err != nil {
 			return fmt.Errorf("error al insertar canción %s: %v", c.titulo, err)
 		}
@@ -311,4 +311,33 @@ func GetAllCancionesPorGenero(genero string) ([]map[string]interface{}, error) {
 		return nil, fmt.Errorf("error al obtener canciones por género: %v", err)
 	}
 	return canciones, nil
+}
+
+// GetGeneroFavoritoUsuario retorna el género más escuchado por un usuario
+func GetGeneroFavoritoUsuario(usuarioID gocql.UUID) (string, error) {
+	generos := make(map[string]int)
+	iter := Session.Query("SELECT cancion_id FROM escuchas WHERE usuario_id = ?", usuarioID).Iter()
+	var cancionID gocql.UUID
+	for iter.Scan(&cancionID) {
+		var genero string
+		err := Session.Query("SELECT genero FROM musica WHERE id = ?", cancionID).Scan(&genero)
+		if err == nil {
+			generos[genero]++
+		}
+	}
+	if err := iter.Close(); err != nil {
+		return "", err
+	}
+	max := 0
+	fav := ""
+	for g, c := range generos {
+		if c > max {
+			max = c
+			fav = g
+		}
+	}
+	if fav == "" {
+		return "", fmt.Errorf("no hay escuchas para este usuario")
+	}
+	return fav, nil
 }
