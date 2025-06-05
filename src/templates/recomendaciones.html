@@ -108,6 +108,24 @@
         </tbody>
       </table>
     </div>
+
+    <hr style="margin:2rem 0;border:1px solid #ffffff33;">
+    <h2>Estadísticas de escuchas por ciudad y mes</h2>
+    <div style="overflow-x:auto;">
+      <table id="tabla-olap-ciudad" style="width:100%;color:white;background:rgba(0,0,0,0.2);border-radius:8px;">
+        <thead>
+          <tr>
+            <th style="padding:8px;">Ciudad</th>
+            <th style="padding:8px;">Año</th>
+            <th style="padding:8px;">Mes</th>
+            <th style="padding:8px;">Total escuchas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="4">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -156,10 +174,33 @@
         });
     }
 
+    function cargarOlapCiudad() {
+      const tbody = document.getElementById('tabla-olap-ciudad').querySelector('tbody');
+      tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+      fetch('/api/olap/ciudad')
+        .then(res => res.json())
+        .then(data => {
+          tbody.innerHTML = '';
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4">Sin datos</td></tr>';
+            return;
+          }
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="padding:8px;">${row.ciudad}</td><td style="padding:8px;">${row.anio}</td><td style="padding:8px;">${row.mes}</td><td style="padding:8px;">${row.total}</td>`;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(() => {
+          tbody.innerHTML = '<tr><td colspan="4">Error al cargar datos OLAP</td></tr>';
+        });
+    }
+
     // Mostrar recomendaciones y OLAP al cargar
     window.onload = function() {
       generarRecomendaciones();
       cargarOlapGenero();
+      cargarOlapCiudad();
     };
   </script>
 </body>

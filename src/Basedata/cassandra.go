@@ -1,4 +1,3 @@
-// filepath: d:\programacion\proyecto bd2\src\basedata\cassandra.go
 package basedata
 
 import (
@@ -40,6 +39,7 @@ func InitCassandra() {
 	err = Session.Query(`CREATE TABLE IF NOT EXISTS usuarios (
 	id UUID PRIMARY KEY,
 	nombre TEXT,
+	ciudad TEXT,
 	email TEXT,
 	password TEXT
 	)`).Exec()
@@ -81,15 +81,27 @@ func InitCassandra() {
 	if err != nil {
 		log.Fatal("No se pudo crear la tabla escuchas_por_genero_mes:", err)
 	}
+
+	// Crear tabla OLAP escuchas por ciudad y mes
+	err = Session.Query(`CREATE TABLE IF NOT EXISTS escuchas_por_ciudad_mes (
+	ciudad TEXT,
+	anio INT,
+	mes INT,
+	total_escuchas COUNTER,
+	PRIMARY KEY ((ciudad), anio, mes)
+	)`).Exec()
+	if err != nil {
+		log.Fatal("No se pudo crear la tabla escuchas_por_ciudad_mes:", err)
+	}
 	fmt.Println("Keyspace y tablas creados correctamente en Cassandra")
 }
 
 // InsertUsuario inserta un nuevo usuario en la base de datos
-func InsertUsuario(nombre, email, password string) (gocql.UUID, error) {
+func InsertUsuario(nombre, ciudad, email, password string) (gocql.UUID, error) {
 	id := gocql.TimeUUID()
 
-	query := Session.Query(`INSERT INTO usuarios (id, nombre, email, password) VALUES (?, ?, ?, ?)`,
-		id, nombre, email, password)
+	query := Session.Query(`INSERT INTO usuarios (id, nombre, ciudad, email, password) VALUES (?, ?, ?, ?, ?)`,
+		id, nombre, ciudad, email, password)
 
 	if err := query.Exec(); err != nil {
 		return gocql.UUID{}, fmt.Errorf("error al insertar usuario: %v", err)
@@ -205,6 +217,19 @@ func RegistrarEscucha(usuarioID, cancionID gocql.UUID, fecha string) error {
 		genero, anio, mes).Exec()
 	if err != nil {
 		return fmt.Errorf("error al actualizar OLAP: %v", err)
+	}
+
+	// Obtener ciudad del usuario
+	var ciudad string
+	err = Session.Query("SELECT ciudad FROM usuarios WHERE id = ?", usuarioID).Scan(&ciudad)
+	if err != nil {
+		return fmt.Errorf("error al obtener ciudad del usuario: %v", err)
+	}
+	// Actualizar contador OLAP por ciudad y mes
+	err = Session.Query(`UPDATE escuchas_por_ciudad_mes SET total_escuchas = total_escuchas + 1 WHERE ciudad = ? AND anio = ? AND mes = ?`,
+		ciudad, anio, mes).Exec()
+	if err != nil {
+		return fmt.Errorf("error al actualizar OLAP por ciudad: %v", err)
 	}
 
 	fmt.Printf("Escucha registrada y OLAP actualizado: usuario %v, canción %v, fecha %s\n", usuarioID, cancionID, fecha)

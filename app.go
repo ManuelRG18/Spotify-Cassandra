@@ -65,6 +65,7 @@ func main() {
 		api.POST("/escuchar", handlers.RegistrarEscucha)
 		api.GET("/recomendaciones", handlers.GetRecomendaciones)
 		api.GET("/olap/genero", handlers.GetOLAPGenero)
+		api.GET("/olap/ciudad", handlers.GetOLAPCiudad)
 	}
 
 	// Iniciar servidor

@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function registrar() {
   const nombre = document.getElementById("registro-nombre").value;
+  const ciudad = document.getElementById("registro-ciudad").value;
   const email = document.getElementById("registro-usuario").value;
   const password = document.getElementById("registro-password").value;
   const confirm = document.getElementById("confirm-password").value;
@@ -92,7 +93,7 @@ function registrar() {
   fetch("/api/usuarios", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, email, password }),
+    body: JSON.stringify({ nombre, ciudad, email, password }),
   })
     .then(res => res.json())
     .then(data => {

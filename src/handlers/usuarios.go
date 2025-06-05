@@ -10,6 +10,7 @@ import (
 
 type UsuarioInput struct {
 	Nombre   string `json:"nombre"`
+	Ciudad   string `json:"ciudad"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -22,7 +23,7 @@ func CreateUsuario(c *gin.Context) {
 		return
 	}
 
-	id, err := basedata.InsertUsuario(input.Nombre, input.Email, input.Password)
+	id, err := basedata.InsertUsuario(input.Nombre, input.Ciudad, input.Email, input.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar usuario"})
 		return
