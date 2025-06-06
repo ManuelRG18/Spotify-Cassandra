@@ -194,7 +194,23 @@ func GetAllCanciones() ([]map[string]interface{}, error) {
 }
 
 // RegistrarEscucha inserta un registro en la tabla escuchas y actualiza la tabla OLAP
-func RegistrarEscucha(usuarioID, cancionID gocql.UUID, fecha string) error {
+func RegistrarEscucha(usuarioID, cancionID gocql.UUID, fechaParam string) error {
+	// Si se recibe una fecha válida, usarla; si no, usar la fecha actual del sistema
+	var t time.Time
+	var err error
+	if fechaParam != "" {
+		t, err = time.Parse("2006-01-02", fechaParam)
+		if err != nil {
+			// Si la fecha es inválida, usar la fecha actual
+			t = time.Now()
+		}
+	} else {
+		t = time.Now()
+	}
+	fecha := t.Format("2006-01-02")
+	anio := t.Year()
+	mes := int(t.Month())
+
 	// Insertar en escuchas
 	query := Session.Query(`INSERT INTO escuchas (usuario_id, cancion_id, fecha_escucha) VALUES (?, ?, ?)`,
 		usuarioID, cancionID, fecha)
@@ -202,21 +218,12 @@ func RegistrarEscucha(usuarioID, cancionID gocql.UUID, fecha string) error {
 		return fmt.Errorf("error al registrar escucha: %v", err)
 	}
 
-	// Obtener género y año/mes de la canción
+	// Obtener género de la canción
 	var genero string
-	var anio int
-	var mes int
-	// Obtener datos de la canción
-	err := Session.Query("SELECT genero, anio FROM musica WHERE id = ?", cancionID).Scan(&genero, &anio)
+	err = Session.Query("SELECT genero FROM musica WHERE id = ?", cancionID).Scan(&genero)
 	if err != nil {
 		return fmt.Errorf("error al obtener datos de la canción: %v", err)
 	}
-	// Parsear mes desde la fecha (YYYY-MM-DD)
-	t, err := time.Parse("2006-01-02", fecha)
-	if err != nil {
-		return fmt.Errorf("error al parsear fecha: %v", err)
-	}
-	mes = int(t.Month())
 
 	// Actualizar contador OLAP
 	err = Session.Query(`UPDATE escuchas_por_genero_mes SET total_escuchas = total_escuchas + 1 WHERE genero = ? AND anio = ? AND mes = ?`,
