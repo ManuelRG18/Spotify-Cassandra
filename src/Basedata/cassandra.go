@@ -251,7 +251,7 @@ func RegistrarEscucha(usuarioID, cancionID gocql.UUID, fechaParam string) error 
 
 // GetTopCancionesPorGenero retorna las canciones más escuchadas por género
 func GetTopCancionesPorGenero(genero string, limite int) ([]map[string]interface{}, error) {
-	// Cassandra no soporta JOINs ni agregaciones complejas, así que lo haremos en dos pasos
+
 	// 1. Obtener todas las canciones del género
 	canciones, err := GetAllCancionesPorGenero(genero)
 	if err != nil {
